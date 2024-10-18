@@ -2,7 +2,7 @@ import React from 'react'
 
 function Contact() {
   return (
-    <div className='flex w-[80%] justify-center items-center gap-20 p-[25px] m-5 rounded-3xl  bg-gradient-to-r from-[purple] to-[white] mt-5'>
+    <div className='flex w-[80%] justify-center items-center gap-20 p-[25px] my-[25px] mb-[50px] mx-[25px] rounded-3xl  bg-gradient-to-r from-[purple] to-[white]'>
       <div>
       <h1 id='contact' className='font-bold text-[50px] text-[lightpink]'>Contact Us!</h1>
         <form action="mailto:example@gmail.com" className='flex gap-5 mt-5 flex-col ml-5'>

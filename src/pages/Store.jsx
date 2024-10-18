@@ -1,18 +1,26 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
-import StoreCard from '../components/Store_Items/StoreCard'; // Adjust the import based on your file structure
-import Navbar from '../components/Navbar/Navbar'
-import About from '../components/About/About'
-import Contact from "../components/Contact/Contact"
+import { useLocation } from 'react-router-dom'; // Import useLocation
+import StoreCard from '../components/Store_Items/StoreCard'; // Import StoreCard
+import Navbar from '../components/Navbar/Navbar';
+import About from '../components/About/About';
+
 const Store = () => {
-  const location = useLocation();
-  const prediction = location.state?.prediction; // Retrieve the prediction from state
+  const location = useLocation(); // Get location object
+  const { prediction } = location.state || {}; // Destructure prediction from state
 
   return (
-    <div className='overflow-x-none'> 
+    <div >
       <Navbar />
-      <StoreCard prediction={prediction} /> {/* Pass the prediction as prop */}
-      <About />
+      <div >
+        {/* Render StoreCard and pass prediction */}
+        {prediction ? (
+          <StoreCard prediction={prediction} />
+        ) : (
+          <StoreCard /> // Handle case when there's no prediction
+        )}
+
+      </div>
+
     </div>
   );
 };

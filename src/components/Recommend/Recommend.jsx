@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Recommend() {
   const features = [
@@ -24,7 +25,7 @@ function Recommend() {
   });
 
   const [error, setError] = useState("");
-  const [result, setResult] = useState(null); // State for holding the prediction result
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +50,6 @@ function Recommend() {
         state: formData.state
       };
 
-      // Access the VITE environment variable
       const apiUrl = import.meta.env.VITE_API_URL;
       if (!apiUrl) {
         throw new Error("API URL is not defined in environment variables.");
@@ -70,11 +70,12 @@ function Recommend() {
 
       const result = await response.json();
       setError(""); // Clear any previous errors
-      setResult(result); // Store the result in state
+
+      // Navigate to the Store page and pass the prediction result
+      navigate("/store", { state: { prediction: result } });
 
     } catch (error) {
       setError("An error occurred while making the prediction: " + error.message);
-      setResult(null); // Clear the previous result if there's an error
     }
   };
 
@@ -94,13 +95,13 @@ function Recommend() {
                 </label>
                 <input
                   type="text"
-                  id={item} // Unique ID for autofill
-                  name={item.toLowerCase()} // Unique name for autofill
+                  id={item}
+                  name={item.toLowerCase()}
                   placeholder={`Enter ${item}`}
                   className="p-2 border rounded-lg"
-                  value={formData[item.toLowerCase()]} // Controlled input
-                  onChange={handleInputChange} // Update state on change
-                  autoComplete={item.toLowerCase()} // Optional: Use for specific autofill suggestions
+                  value={formData[item.toLowerCase()]}
+                  onChange={handleInputChange}
+                  autoComplete={item.toLowerCase()}
                 />
               </div>
             ))}
@@ -118,21 +119,7 @@ function Recommend() {
       </div>
 
       {error && <div className="mt-4 text-center text-red-600">{error}</div>}
-
-      {/* Display the result */}
-      {result && (
-        <div className="mt-8 p-4 bg-green-100 flex gap-[10px] text-green-800 rounded-lg">
-          <h2 className="text-2xl font-bold sm:text-xl md:text-xl">Recommendation:</h2>
-          <a href="/store">
-            <p className='text-2xl text-[red] font-bold sm:text-xl md:text-xl '>{result["prediction"]}</p></a> {/* Adjust this based on the structure of your result */}
-        </div>
-      )}
-
-      <div>
-        <p className='mt-10 font-bold text-center'>
-          ** Based on the Recommendation, Purchase on Store is Recommended
-        </p>
-      </div>
+      {/* Display the prediction result if needed */}
     </div>
   );
 }

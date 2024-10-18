@@ -1,16 +1,40 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import search from "../../assets/search.png";
 import { storeItems } from '../../constrains/constrain-2';
 import { Leaf, thumb } from '../../constrains/constrain-1';
+import RetailStore from '../RetailStore/RetailStore';
 
-const StoreCard = () => {
-    const [isitem, setIsitem] = useState("");
+const StoreCard = ({ prediction }) => {
+    const navigate = useNavigate(); // Hook to programmatically navigate
+
+    // Initialize isitem to display all items if prediction is not available
+    const initialSearchValue = prediction && prediction.prediction ? prediction.prediction.toLowerCase() : "";
+    const [isitem, setIsitem] = useState(initialSearchValue);
     const [issearch, setIssearch] = useState(true);
+
+    const [totalPrice, setTotalPrice] = useState(0); // State to track total price
+
+    const items = RetailStore((state) => state.cardItems);
+    const price = RetailStore((state) => state.price);
+    const addItem = RetailStore((state) => state.addItem); // Access the addItem function from the store
 
     const checkItems = (e) => {
         const searchValue = e.target.value.toLowerCase();
         setIsitem(searchValue);
         setIssearch(searchValue.length === 0); // Hide search icon if input is not empty
+    };
+
+    const handleAddToCart = (itemName, itemPrice) => {
+        // Ensure itemPrice is a string and remove any non-numeric characters
+        const parsedPrice = parseFloat(itemPrice.replace(/[^0-9.-]+/g, '')); // Remove any non-numeric characters
+        if (!isNaN(parsedPrice)) { // Check if parsedPrice is a valid number
+            addItem(itemName, parsedPrice); // Add the item to the store
+            setTotalPrice((prevPrice) => prevPrice + parsedPrice); // Update the total price
+            navigate('/store/card'); // Redirect to the checkout page
+        } else {
+            console.error(`Invalid price for ${itemName}: ${itemPrice}`);
+        }
     };
 
     return (
@@ -27,6 +51,7 @@ const StoreCard = () => {
                     placeholder="Search"
                     className='outline-none border-solid border-2 text-[25px] px-5 border-black rounded-2xl w-[80%] ml-[10%] h-[45px]'
                     onChange={checkItems}
+                    value={isitem} // Bind search input to the filtered prediction
                 />
                 {issearch && (
                     <img
@@ -57,9 +82,9 @@ const StoreCard = () => {
                     <p className="text-center text-gray-600">Loading items...</p>
                 ) : (
                     storeItems.map((category, index) => {
-                        // Filter the categories based on the search input
+                        // Filter the categories based on the search input or prediction
                         if (isitem && !category.name.toLowerCase().includes(isitem)) {
-                            return null;
+                            return null; // Don't render if the item doesn't match the search
                         }
 
                         return (
@@ -68,7 +93,7 @@ const StoreCard = () => {
                                 <h1 className='text-2xl font-bold text-gray-700 mb-6'>{category.name}</h1>
 
                                 {/* Map over items in the category */}
-                                <div className="grid grid-cols-3 flex-wrap justify-center items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl: grid-cols-4 2xl: grid-cols-5 3xl: grid-cols-6  gap-8">
+                                <div className="grid grid-cols-3 flex-wrap justify-center items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-8">
                                     {category.Item.map((item, idx) => (
                                         <div key={idx} className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center text-center">
                                             {/* Item Image */}
@@ -83,38 +108,18 @@ const StoreCard = () => {
 
                                             <div className='flex gap-2 justify-center items-center'>
                                                 <div className="text-gray-600 text-sm flex justify-center items-center gap-2 mb-2">
-                                                    <img src={thumb} className='h-5' alt="" /><span className="font-semibold">{item.ratings}⭐</span>
-                                                </div>
-
-                                                <div>|</div>
-
-                                                <div className="text-gray-600 gap-1 flex justify-center items-center text-sm">
-                                                    {<img src={item.profile} className='h-5' alt="" />} <span className="font-semibold">{item.users}</span>
-
+                                                    <img src={thumb} height="20px" width="20px" alt="thumb" />
+                                                    <p className='text-[15px]'>Rating {item.ratings}</p>
                                                 </div>
                                             </div>
 
-                                            <div className='flex justify-center items-center gap-2'>
-                                                <div>
-                                                    {item.prize}
-                                                </div>
-                                                <div>
-                                                    |
-                                                </div>
-                                                <div className="text-gray-600 flex justify-center items-center gap-1 text-sm">
-                                                    <span className="font-semibold">{item.Reviews}</span>
-                                                    <img src={thumb} className='h-5' alt="" />
-                                                </div>
-                                                
+                                            <p className="text-lg font-semibold text-gray-700">${item.prize}</p>
 
-
-                                            </div>
-
-
-
-                                            {/* Action Button */}
-                                            <button className="mt-4 bg-black text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
-                                                Buy &gt;&gt;
+                                            <button
+                                                className="bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600 transition"
+                                                onClick={() => handleAddToCart(item.name, item.prize)} // Trigger add to cart and update price
+                                            >
+                                                Buy Now
                                             </button>
                                         </div>
                                     ))}
@@ -123,10 +128,11 @@ const StoreCard = () => {
                         );
                     })
                 )}
-                {/* No results found */}
-                {/* {isitem && storeItems.every(category => !category.Item.some(item => item.name.toLowerCase().includes(isitem))) && (
-                    <p className="text-center text-gray-600">No items found for "{isitem}"</p>
-                )} */}
+            </div>
+
+            {/* Total Price Section */}
+            <div className="mt-8 p-4 bg-gray-100 text-center">
+                <h2 className="text-xl font-bold">Total Price: ${totalPrice.toFixed(2)}</h2>
             </div>
         </div>
     );

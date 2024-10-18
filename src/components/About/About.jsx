@@ -3,7 +3,7 @@ import { socialMedia } from '../../constrains/constrain-1'
 
 const About = () => {
   return (
-    <div className='bg-black  border border-black shadow-[200px] text-white h-[200px] flex rounded-t-3xl justify-center items-center relative'>
+    <div className='bg-black  border border-black shadow-[200px] text-white h-[200px] flex justify-center items-center relative'>
       {/* Left Section */}
       <div className='w-[50%] ml-[100px]  sm:hidden md:hidden'>
         <span className='text-[50px] font-bold text-[purple] '>Agrie</span>
