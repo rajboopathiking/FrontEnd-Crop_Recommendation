@@ -55,7 +55,7 @@ function Recommend() {
         throw new Error("API URL is not defined in environment variables.");
       }
 
-      const response = await fetch(`${apiUrl}/predict`, {
+      const response = await fetch(`${apiUrl}/predict/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
